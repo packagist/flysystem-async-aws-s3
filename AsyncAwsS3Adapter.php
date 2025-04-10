@@ -188,7 +188,7 @@ class AsyncAwsS3Adapter implements FilesystemAdapter, PublicUrlGenerator, Checks
             foreach ($result->getContents() as $item) {
                 $key = $item->getKey();
                 if (null !== $key) {
-                    $objects[] = new ObjectIdentifier(['Key' => $key]);
+                    $objects[] = $this->createObjectIdentifierForXmlRequest($key);
                 }
             }
 
@@ -573,5 +573,12 @@ class AsyncAwsS3Adapter implements FilesystemAdapter, PublicUrlGenerator, Checks
         } catch (Throwable $exception) {
             throw UnableToGenerateTemporaryUrl::dueToError($path, $exception);
         }
+    }
+
+    private function createObjectIdentifierForXmlRequest(string $key): ObjectIdentifier
+    {
+        $key = htmlentities($key, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+
+        return new ObjectIdentifier(['Key' => $key]);
     }
 }
