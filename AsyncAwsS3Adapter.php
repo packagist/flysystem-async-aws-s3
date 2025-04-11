@@ -577,8 +577,12 @@ class AsyncAwsS3Adapter implements FilesystemAdapter, PublicUrlGenerator, Checks
 
     private function createObjectIdentifierForXmlRequest(string $key): ObjectIdentifier
     {
-        $key = htmlentities($key, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+        $escapedKey = htmlentities($key, ENT_XML1 | ENT_QUOTES, 'UTF-8');
 
-        return new ObjectIdentifier(['Key' => $key]);
+        if ($escapedKey === '') {
+            throw new \RuntimeException(sprintf('Cannot escape key "%s" for a xml request. htmlentities() returned an empty string.', $key));
+        }
+
+        return new ObjectIdentifier(['Key' => $escapedKey]);
     }
 }
